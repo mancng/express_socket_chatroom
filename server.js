@@ -37,21 +37,37 @@ var userName;
 io.sockets.on('connection', function(socket) {
     console.log("Client/socket id is: ", socket.id);
 
+    // New user joins
     socket.on('new_user', function(name){
-        userName = name;
+        socket.user = name;
+        // Send existing messages to client
         allMessages.forEach(function(message){
-            socket.emit('chat_messages', message.name + ":" + message.data);
+            socket.emit('new_messages', message.name + ": " + message.message);
         });
         // Store user
-        storeUsers(userName, socket.id);
+        storeUsers(socket.user, socket.id);
         io.emit('active_users', activeUsers);
         console.log(activeUsers);
-    })
+    });
     
-    socket.on( 'new_messages', function (data) {
-        io.emit('new_messages', userName+":" + data);
-        storeMessage(userName, data);
-    })
+    // New message received
+    socket.on('new_messages', function (data) {
+        var currentUser = socket.user
+        io.emit('new_messages', currentUser + ": " + data);
+        // Store message
+        storeMessage(currentUser, data);
+    });
+
+    // socket.on('disconnect', function(){
+    //     console.log('user disconnected');
+    //     // Remove user from activeUser array by socket.id
+    //     activeUsers.splice(activeUsers.map(function(y){
+    //         return y.id;
+    //     }).indexOf(socket.id), 1);
+    //     console.log(activeUsers);
+    //     // Emit active users to clients
+    //     io.emit('active_users', activeUsers);
+    // });
 
 
 

@@ -29,15 +29,18 @@
             });
             
             // Get messages from server and display in chat 'dialogs' div
-            socket.on('chat_messages', function(data){
-                $('#dialogs').append($('<li>' + ": ").text(data));
+            socket.on('new_messages', function(data){
+                $('#dialogs').append($('<li>').text(data));
             });
 
-
+            // Send new message to server
             $('#btn').click(function () {
                 socket.emit ('new_messages', $('#textbox').val());
-                $('#texbox').val('');
+                console.log($('#textbox').val())
+                $('#textbox').val('');
             });
+        
+
         });
 
 
