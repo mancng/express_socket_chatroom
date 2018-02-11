@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./stylesheets/style.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type = "text/javascript">
+        $(document).ready(function() {
+            var socket = io.connect();
+
+            user = prompt("Please enter your name");
+            if (user != null) {
+                document.getElementById('greet').innerHTML = "Hello " + user + "!";
+                // Send new username to server
+                socket.emit ('new_user', user);
+            } else {
+                return;
+            }
+            
+            // Get all active users from server and display in 'user_div'
+            socket.on('active_users', function(data){
+                $('#users_div').empty(); // Clear out the span
+                data.map(function(x){
+                    $('#users_div').append($('<li>' + x.name + '</li>'));
+                });
+            });
+            
+            // Get messages from server and display in chat 'dialogs' div
+            socket.on('chat_messages', function(data){
+                $('#dialogs').append($('<li>' + ": ").text(data));
+            });
+
+
+            $('#btn').click(function () {
+                socket.emit ('new_messages', $('#textbox').val());
+                $('#texbox').val('');
+            });
+        });
+
+
+
+    </script>
+    <title>Chatroom</title>
+</head>
+<body>
+    <div id="wrapper">
+        <h1 id='greet'>You're not logged on</h1>
+        <div id='online'>Online Users: 
+            <ul id='users_div'></ul>
+        <div id='chat'>
+            <ul id='dialogs'></ul>
+        </div>
+        <div id='submit'>
+            <input id="textbox" type="text" name="message" placeholder="enter your message here">
+            <input id="btn" type="submit" value="Send">
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
+<!--
+
+    1) create prompt for users to enter name
+    2) create chatroom div
+    3) route page to index
+    4) user joining the chat room from client:
+        a) have the Client listen to prompt click then socket.emit ('new_user') event.
+        b) have the server listens to ('new_user') event then broadcast (io.emit) ('active_users') to all other users with user name and socket io ID.
+        b) have the client listen to ('user-added') event and append chatroom div with user name displayed.
+
+
+
+-->
