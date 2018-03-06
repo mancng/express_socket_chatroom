@@ -1,6 +1,11 @@
+var http = require('http');
 var express = require('express');
 var app = express();
 var path = require('path');
+
+var server = http.Server(app);
+var port = process.env.PORT || 3000;
+var io = require('socket.io')(server);
 
 app.use(express.static(path.join(__dirname, './static')));
 app.set('views',path.join(__dirname, '/views'));
@@ -10,11 +15,11 @@ app.get('/', function(req, res) {
     res.render('index');
 });
 
-var server = app.listen(process.env.PORT || 3000, function() {
-    console.log("listening to 3000");
-});
+// var server = app.listen(process.env.PORT || 3000, function() {
+//     console.log("listening to 3000");
+// });
 
-var io = require('socket.io').listen(server);
+// var io = require('socket.io').listen(server);
 
 // Store users
 var activeUsers = [];
@@ -72,3 +77,6 @@ io.sockets.on('connection', function(socket) {
 
 
 });
+
+server.listen(port);
+console.log('Server is running.');
